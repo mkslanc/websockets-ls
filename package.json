@@ -2,9 +2,12 @@
   "name": "websockets-ls",
   "version": "1.0.0",
   "dependencies": {
+    "@astrojs/language-server": "^2.4.0",
+    "svelte-language-server": "^0.15.20",
     "vscode-jsonrpc": "^8.1.0",
+    "vscode-uri": "^3.0.8",
     "ws": "^8.13.0",
-    "svelte-language-server": "^0.15.16"
+    "typescript": "^4.4.3"
   },
   "scripts": {
     "start": "node server.js"
