@@ -4,10 +4,15 @@
   "dependencies": {
     "@astrojs/language-server": "^2.4.0",
     "svelte-language-server": "^0.15.20",
+    "typescript": "^4.4.3",
+    "astro": "^3.5.7",
+    "prettier": "^3.1.0",
+    "prettier-plugin-astro": "^0.12.2"
+  },
+  "devDependencies": {
     "vscode-jsonrpc": "^8.1.0",
     "vscode-uri": "^3.0.8",
-    "ws": "^8.13.0",
-    "typescript": "^4.4.3"
+    "ws": "^8.13.0"
   },
   "scripts": {
     "start": "node server.js"
