@@ -18,6 +18,7 @@ const {
 
 const servers = [
     {
+        endpointName: "svelte",
         args: [
             'node', [require.resolve('svelte-language-server/bin/server.js')], {
                 env: Object.create(process.env),
@@ -28,11 +29,13 @@ const servers = [
         connectionType: "ipc",
         relativePath: true
     }, {
+        endpointName: "python",
         args: ["pylsp"],
         nameEndsWith: ".python",
         connectionType: "stdio",
         relativePath: false
     }, {
+        endpointName: "astro",
         args: [
             'node', [require.resolve('@astrojs/language-server/bin/nodeServer.js'), "--stdio"]
         ],
@@ -40,17 +43,25 @@ const servers = [
         connectionType: "stdio",
         relativePath: false
     }, {
+        endpointName: "go",
         args: [
             'gopls', ['-mode=stdio', '-remote=auto']
         ],
         nameEndsWith: ".golang",
         connectionType: "stdio",
         relativePath: true
+    }, {
+        endpointName: "c",
+        args: [
+            'clangd', ['--log=error']
+        ],
+        nameEndsWith: ".c",
+        connectionType: "stdio"
     } //add any other language servers here
 ];
 
-function handleLanguageConnection(ws, extension) {
-    const server = servers.find(server => server.nameEndsWith === extension);
+function handleLanguageConnection(ws, pathname) {
+    const server = servers.find(server => server.endpointName === pathname);
     setUpLanguageServer(ws, server);
 }
 
@@ -58,24 +69,7 @@ const wss = new WebSocket.Server({port: 3030});
 
 wss.on('connection', (ws, req) => {
     const pathname = url.parse(req.url).pathname;
-
-    switch (pathname) {
-        case "/svelte":
-            handleLanguageConnection(ws, ".html");
-            break;
-        case "/astro":
-            handleLanguageConnection(ws, ".astro");
-            break;
-        case "/python":
-            handleLanguageConnection(ws, ".python");
-            break;
-        case "/go":
-            handleLanguageConnection(ws, ".golang");
-            break;
-        default:
-            ws.close();
-            break;
-    }
+    handleLanguageConnection(ws, pathname.substring(1));
 });
 
 function processMessage(message, ws) {
