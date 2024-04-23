@@ -15,50 +15,7 @@ const {
     formatPath
 } = require("./paths-utility");
 
-
-const servers = [
-    {
-        endpointName: "svelte",
-        args: [
-            'node', [require.resolve('svelte-language-server/bin/server.js')], {
-                env: Object.create(process.env),
-                stdio: [null, null, null, 'ipc']
-            }
-        ],
-        nameEndsWith: ".html",
-        connectionType: "ipc",
-        relativePath: true
-    }, {
-        endpointName: "python",
-        args: ["pylsp"],
-        nameEndsWith: ".python",
-        connectionType: "stdio",
-        relativePath: false
-    }, {
-        endpointName: "astro",
-        args: [
-            'node', [require.resolve('@astrojs/language-server/bin/nodeServer.js'), "--stdio"]
-        ],
-        nameEndsWith: ".astro",
-        connectionType: "stdio",
-        relativePath: false
-    }, {
-        endpointName: "go",
-        args: [
-            'gopls', ['-mode=stdio', '-remote=auto']
-        ],
-        nameEndsWith: ".golang",
-        connectionType: "stdio",
-        relativePath: true
-    }, {
-        endpointName: "c",
-        args: [
-            'clangd', ['--log=error']
-        ],
-        nameEndsWith: ".c",
-        connectionType: "stdio"
-    } //add any other language servers here
-];
+const {servers} = require("./defaultServers");
 
 function handleLanguageConnection(ws, pathname) {
     const server = servers.find(server => server.endpointName === pathname);
@@ -72,13 +29,13 @@ wss.on('connection', (ws, req) => {
     handleLanguageConnection(ws, pathname.substring(1));
 });
 
-function processMessage(message, ws) {
+function processMessage(message, ws, server) {
     if (message.params) {
         if (message.params.textDocument && message.params.textDocument.uri) {
-            message.params.textDocument.uri = makeClientPath(message.params.textDocument.uri);
+            message.params.textDocument.uri = makeClientPath(message.params.textDocument.uri, server.clientFileNameReplacePattern);
         }
         else if (message.params.uri) {
-            message.params.uri = makeClientPath(message.params.uri);
+            message.params.uri = makeClientPath(message.params.uri, server.clientFileNameReplacePattern);
         }
     }
     ws.send(JSON.stringify(message));
@@ -91,12 +48,12 @@ function handleMessage(parsed, server) {
                 let rootUri = formatPath(__dirname);
                 parsed.params.rootUri = rootUri;
                 parsed.params.rootPath = __dirname;
-                /* parsed.params.workspaceFolders = [
-                     {
-                         uri: rootUri,
-                         name: __dirname
-                     }
-                 ];*/
+                parsed.params.workspaceFolders = [
+                    {
+                        uri: rootUri,
+                        name: __dirname
+                    }
+                ];
                 if (!parsed.params.initializationOptions) {
                     parsed.params.initializationOptions = {};
                 }
@@ -111,7 +68,7 @@ function handleMessage(parsed, server) {
 
     }
     if (parsed.params && parsed.params.textDocument && parsed.params.textDocument.uri) {
-        parsed.params.textDocument.uri = makeServerPath(parsed.params.textDocument.uri);
+        parsed.params.textDocument.uri = makeServerPath(parsed.params.textDocument.uri, server.serverFileNameReplacePattern);
         if (server && server.relativePath) {
             parsed.params.textDocument.uri = parsed.params.textDocument.uri.replace(__dirname + path.sep, "");
         }
@@ -137,7 +94,7 @@ function setUpLanguageServer(ws, server) {
             console.log(message.error);
             return;
         }
-        processMessage(message, ws);
+        processMessage(message, ws, server);
     });
 
     ws.on('message', message => {
@@ -195,3 +152,4 @@ function startLsServer(languageServer) {
         writer
     };
 }
+
