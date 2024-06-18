@@ -55,5 +55,13 @@ exports.servers = [
         nameEndsWith: ".r",
         connectionType: "stdio",
         relativePath: false
+    }, {
+        endpointName: "lsp-ai",
+        args: [
+            "lsp-ai"
+        ],
+        nameEndsWith: ".js",
+        connectionType: "stdio",
+        relativePath: false
     }//add any other language servers here
 ];
