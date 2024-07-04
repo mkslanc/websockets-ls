@@ -63,5 +63,13 @@ exports.servers = [
         nameEndsWith: ".js",
         connectionType: "stdio",
         relativePath: false
-    }//add any other language servers here
+    },{
+        endpointName: "typescript",
+        args: [
+            'typescript-language-server', ['--stdio']
+        ],
+        nameEndsWith: ".ts",
+        connectionType: "stdio",
+        relativePath: false
+    },//add any other language servers here
 ];

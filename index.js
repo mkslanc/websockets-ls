@@ -14,7 +14,6 @@ const {
     makeClientPath,
     formatPath
 } = require("./paths-utility");
-
 const {servers} = require("./defaultServers");
 
 function handleLanguageConnection(ws, pathname) {
@@ -45,24 +44,24 @@ function handleMessage(parsed, server) {
     if (parsed.method) {
         switch (parsed.method) {
             case "initialize":
-                let rootUri = formatPath(__dirname);
-                parsed.params.rootUri = rootUri;
-                parsed.params.rootPath = __dirname;
-                parsed.params.workspaceFolders = [
+                //let rootUri = formatPath(__dirname + path.sep + "temp");
+                //parsed.params.rootUri = rootUri;
+               // parsed.params.rootPath = __dirname + path.sep + "temp";
+                /*parsed.params.workspaceFolders = [
                     {
-                        uri: rootUri,
-                        name: __dirname
+                        uri: parsed.params.rootUri,
+                        name: "playground"
                     }
                 ];
                 if (!parsed.params.initializationOptions) {
                     parsed.params.initializationOptions = {};
-                }
+                }*/
                 break;
             case "textDocument/didOpen":
                 if (!fs.existsSync("temp")) {
                     fs.mkdirSync("temp");
                 }
-                fs.writeFileSync("temp" + path.sep + parsed.params.textDocument.uri, parsed.params.textDocument.text);
+                //fs.writeFileSync("temp" + path.sep + parsed.params.textDocument.uri, parsed.params.textDocument.text);
                 break;
         }
 
@@ -105,7 +104,7 @@ function setUpLanguageServer(ws, server) {
 
 function startLsServer(languageServer) {
     let env = process.env;
-    const serverProcess = spawn(...languageServer.args, {env});
+    const serverProcess = spawn(...languageServer.args, {env, shell: true});
     serverProcess.stderr.on('data', data => {
         console.error(`${serverProcess.spawnfile} error: ${data}`);
     });
@@ -119,7 +118,7 @@ function startLsServer(languageServer) {
     });
 
     serverProcess.on('error', err => {
-        console.error(`Failed to start ${serverProcess.spawnfile}:```, err);
+        console.error(`Failed to start ${serverProcess.spawnfile}:`, err);
     });
 
     let reader;
