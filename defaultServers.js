@@ -71,5 +71,21 @@ exports.servers = [
         nameEndsWith: ".ts",
         connectionType: "stdio",
         relativePath: false
+    }, {
+        endpointName: "vue",
+        args: [
+            'node', [require.resolve('@vue/language-server/bin/vue-language-server.js'), "--stdio"]
+        ],
+        nameEndsWith: ".vue",
+        connectionType: "stdio",
+        relativePath: false
+    }, {
+        endpointName: "copilot",
+        args: [
+            'node', [require.resolve('@github/copilot-language-server/dist/language-server.js'), "--stdio"]
+        ],
+        nameEndsWith: ".copilot",
+        connectionType: "stdio",
+        relativePath: false
     },//add any other language servers here
 ];

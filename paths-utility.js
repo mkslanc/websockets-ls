@@ -19,7 +19,7 @@ function makeServerPath(fileName, replacement) {
 }
 
 function makeClientPath(filePath, replacement) {
-    if (filePath.startsWith("file:")) {
+    if (/^(file|https?):/.test(filePath)) {
         return filePath;
     }
     const clientPath = filePath.split(/[/\\]/).pop();

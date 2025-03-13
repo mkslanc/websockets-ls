@@ -1,4 +1,8 @@
 const WebSocket = require('ws');
+
+const argv = require('yargs').argv;
+const verbose = argv.verbose || false;
+
 const {spawn} = require('child_process');
 const url = require('url');
 const {
@@ -89,11 +93,19 @@ function setUpLanguageServer(ws, server) {
             console.log(message.error);
             return;
         }
+        if (verbose) {
+            console.log(`From server(${server.endpointName}): `);
+            console.log(message);
+        }
         processMessage(message, ws, server);
     });
 
     ws.on('message', message => {
         let parsed = JSON.parse(message);
+        if (verbose) {
+            console.log("From client: ");
+            console.log(parsed);
+        }
         handleMessage(parsed, server);
     });
 }
@@ -139,7 +151,7 @@ function startLsServer(languageServer) {
             }
             break;
         default:
-            throw 'Uknown connection type';
+            throw 'Unknown connection type';
     }
 
     return {
