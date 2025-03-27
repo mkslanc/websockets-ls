@@ -29,7 +29,6 @@ exports.servers = [
    {
        endpointName: "language_endpoint", // WebSocket endpoint name
        args: ['executable_path', ['arg1', 'arg2', ...]],
-       nameEndsWith: ".file_extension",
        connectionType: "ipc" | "stdio", // Communication type
        relativePath: true | false, // Whether to use relative paths
        serverFileNameReplacePattern: { // Server file name regex replacements
@@ -43,3 +42,12 @@ exports.servers = [
    }
    // Add more language server configurations here
 ];
+```
+
+## Debugging
+
+Run the server in verbose mode to see detailed logs of all WebSocket communications and server operations:
+
+```bash
+node index.js --verbose
+```

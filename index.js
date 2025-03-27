@@ -1,4 +1,8 @@
 const WebSocket = require('ws');
+
+const argv = require('yargs').argv;
+const verbose = argv.verbose || false;
+
 const {spawn} = require('child_process');
 const url = require('url');
 const {
@@ -14,7 +18,6 @@ const {
     makeClientPath,
     formatPath
 } = require("./paths-utility");
-
 const {servers} = require("./defaultServers");
 
 function handleLanguageConnection(ws, pathname) {
@@ -22,7 +25,7 @@ function handleLanguageConnection(ws, pathname) {
     setUpLanguageServer(ws, server);
 }
 
-const wss = new WebSocket.Server({port: 3030});
+const wss = new WebSocket.Server({port: 3080});
 
 wss.on('connection', (ws, req) => {
     const pathname = url.parse(req.url).pathname;
@@ -45,25 +48,21 @@ function handleMessage(parsed, server) {
     if (parsed.method) {
         switch (parsed.method) {
             case "initialize":
-                let rootUri = formatPath(__dirname);
-                parsed.params.rootUri = rootUri;
-                parsed.params.rootPath = __dirname;
-                parsed.params.workspaceFolders = [
-                    {
-                        uri: rootUri,
-                        name: __dirname
+                let rootUri = formatPath(__dirname + path.sep + "temp");
+                if (!parsed.params || (!parsed.params.rootUri && !parsed.params.rootPath && !parsed.params.workspaceFolders)) {
+                    if (!fs.existsSync("temp")) {
+                        fs.mkdirSync("temp");
                     }
-                ];
-                if (!parsed.params.initializationOptions) {
-                    parsed.params.initializationOptions = {};
+                    parsed.params.rootUri = rootUri;
+                    parsed.params.rootPath = __dirname + path.sep + "temp";
                 }
                 break;
-            case "textDocument/didOpen":
+           /* case "textDocument/didOpen":
                 if (!fs.existsSync("temp")) {
                     fs.mkdirSync("temp");
                 }
                 fs.writeFileSync("temp" + path.sep + parsed.params.textDocument.uri, parsed.params.textDocument.text);
-                break;
+                break;*/
         }
 
     }
@@ -94,18 +93,26 @@ function setUpLanguageServer(ws, server) {
             console.log(message.error);
             return;
         }
+        if (verbose) {
+            console.log(`From server(${server.endpointName}): `);
+            console.log(message);
+        }
         processMessage(message, ws, server);
     });
 
     ws.on('message', message => {
         let parsed = JSON.parse(message);
+        if (verbose) {
+            console.log("From client: ");
+            console.log(parsed);
+        }
         handleMessage(parsed, server);
     });
 }
 
 function startLsServer(languageServer) {
     let env = process.env;
-    const serverProcess = spawn(...languageServer.args, {env});
+    const serverProcess = spawn(...languageServer.args, {env, shell: true});
     serverProcess.stderr.on('data', data => {
         console.error(`${serverProcess.spawnfile} error: ${data}`);
     });
@@ -119,7 +126,7 @@ function startLsServer(languageServer) {
     });
 
     serverProcess.on('error', err => {
-        console.error(`Failed to start ${serverProcess.spawnfile}:```, err);
+        console.error(`Failed to start ${serverProcess.spawnfile}:`, err);
     });
 
     let reader;
@@ -144,7 +151,7 @@ function startLsServer(languageServer) {
             }
             break;
         default:
-            throw 'Uknown connection type';
+            throw 'Unknown connection type';
     }
 
     return {
