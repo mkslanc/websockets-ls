@@ -31,15 +31,8 @@ exports.servers = [
         ],
         nameEndsWith: ".golang",
         connectionType: "stdio",
-        relativePath: false,
-        serverFileNameReplacePattern: {
-            from: /.golang$/,
-            to: ".go"
-        },
-        clientFileNameReplacePattern: {
-            from: /.go$/,
-            to: ".golang"
-        },
+        relativePath: false
+
     }, {
         endpointName: "c",
         args: [
@@ -63,7 +56,7 @@ exports.servers = [
         nameEndsWith: ".js",
         connectionType: "stdio",
         relativePath: false
-    },{
+    }, {
         endpointName: "typescript",
         args: [
             'typescript-language-server', ['--stdio']
@@ -87,5 +80,13 @@ exports.servers = [
         nameEndsWith: ".copilot",
         connectionType: "stdio",
         relativePath: false
-    },//add any other language servers here
+    }, {
+        endpointName: "dart",
+        args: [
+            'dart', ['language-server --client-id ace-linters.dart --client-version 1.2']
+        ],
+        nameEndsWith: ".dart",
+        connectionType: "stdio",
+        relativePath: false
+    }//add any other language servers here
 ];

@@ -25,7 +25,7 @@ function handleLanguageConnection(ws, pathname) {
     setUpLanguageServer(ws, server);
 }
 
-const wss = new WebSocket.Server({port: 3080});
+const wss = new WebSocket.Server({port: 3030});
 
 wss.on('connection', (ws, req) => {
     const pathname = url.parse(req.url).pathname;
